@@ -1,0 +1,5 @@
+{ 
+	"port": 5000,
+	"localhost": true,
+	"brother_cmd": "brother_ql -m QL-700 -p usb://0x04f9:0x2042 print -l 62 "
+	}
