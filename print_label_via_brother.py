@@ -25,10 +25,8 @@ def do_print():
     create_label(number)
 
     if print_label('print.png',quantity)==0:
-        # return Response( {'status': 'success'},200,mimetype="text/html")
         return jsonify( {'status': 'success'} ),200
     return jsonify({'status': 'fail'}),500
-    # return Response( {'status': 'fail'},500,mimetype="text/html")
 
 
 
