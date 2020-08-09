@@ -50,8 +50,10 @@ def print_label(img,quantity):
     quantity=int(quantity)
     data = parse_json()
     brother_cmd=data['brother_cmd']
+    status=None
     for i in range(0,quantity):
-        return (os.system(brother_cmd + img))
+        status=(os.system(brother_cmd + img))
+    return status
 
 def parse_json():
     with open('config.json') as f:
