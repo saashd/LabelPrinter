@@ -20,9 +20,9 @@ app = Flask(__name__)
 #  http://127.0.0.1:5000/print?number=2&quantity=2 -this is how it works
 @app.route("/print",methods=['get'])
 def do_print():
-    number = request.args.get('number', None)  # use default value replace 'None'
+    print_str = request.args.get('string', None)  # use default value replace 'None'
     quantity = request.args.get('quantity', None)
-    create_label(number)
+    create_label(print_str)
 
     if print_label('print.png',quantity)==0:
         return jsonify( {'status': 'success'} ),200
@@ -33,12 +33,12 @@ def do_print():
 
 
 #add serial number to template to create new label
-def create_label(serial_num):
+def create_label(print):
     in_file = 'template.png'
     out_file = 'print.png'
     year_last_2_digits = time.strftime("%y", time.localtime())
-    num = str(serial_num)
-    text = 'GW' + num + '/' + year_last_2_digits
+    print_string = print
+    text =   print_string+ '/' + year_last_2_digits
     img = Image.open(in_file)
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype("C:\Windows\Fonts\Calibri.ttf", 100)
