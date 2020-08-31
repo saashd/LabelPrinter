@@ -18,18 +18,6 @@ from flask import Flask, request, jsonify, Response
 app = Flask(__name__)
 
 
-#  http://127.0.0.1:5000/print?number=2&quantity=2 -this is how it works
-@app.route("/print", methods=['get'])
-def do_print():
-    content = request.args.get('string', None)  # use default value replace 'None'
-    quantity = request.args.get('quantity', None)
-    create_label(content)
-
-    if print_label('print.png', quantity) == 0:
-        return jsonify({'status': 'success'}), 200
-    return jsonify({'status': 'fail'}), 500
-
-
 @app.route("/api", methods=['get'])
 def check_status():
     return jsonify({"Message": "Running"})
@@ -40,25 +28,69 @@ def get_keys():
     data = request.json
     content = data['Content']
     quantity = data['Quantity']
-    create_label(content)
+    template = data['WithLogo']
+    text = reverse_and_flip(content)
+    try:
+        if template:
+            create_label(text, 'template.png')
+        else:
+            create_label(text, 'template1.png')
+            status_code = print_label('print.png', quantity)
+            if status_code == 0:
+                return jsonify({'Message': 'success'}), 200
+            return jsonify({'Message': 'failed with status code: {}'.format(status_code)}), 500
+    except Exception as e:
+        return jsonify({'Message': str(e)}), 500
 
-    if print_label('print.png', quantity) == 0:
-        return jsonify({'status': 'success'}), 200
-    return jsonify({'status': 'fail'}), 500
+
+def is_hebrew_char(c):
+    return 1424 <= ord(c) <= 1514
 
 
-# add serial number to template to create new label
-def create_label(content_print):
-    in_file = 'template.png'
-    out_file = 'print.png'
-    # year_last_2_digits = time.strftime("%y", time.localtime())
-    content = content_print
-    text = content
-    img = Image.open(in_file)
+def reverse_and_flip(text):
+    s = text.split(' ')
+    builder = []
+    buffer = []
+    for w in reversed(s):
+        if (len(w) == 0):
+            continue
+        flag = is_hebrew_char(w[0])
+        if flag:
+            if len(buffer) > 0:
+                for b in reversed(buffer):
+                    builder.append(b)
+                buffer = list()
+            builder.append(''.join(reversed(w)))
+        else:
+            buffer.append(w)
+
+    if len(buffer) > 0:
+        for b in reversed(buffer):
+            builder.append(b)
+
+    return ' '.join(builder)
+
+
+def create_label(content_print, file):
+    length = len(content_print)
+    if 0 <= length <= 9:
+        size = 100
+        W = (720 - length * 55) / 2
+    elif 10 <= length <= 19:
+        size = 75
+        W = (720 - length * 39) / 2
+    elif 20 <= length <= 29:
+        size = 50
+        W = (720 - length * 26) / 2
+    else:
+        raise Exception("Max length allowed is 29 characters")
+
+    W = max(0, W)
+    img = Image.open(file)
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("C:\Windows\Fonts\Calibri.ttf", 100)
-    draw.text((125, 125), text, fill="black", font=font, align='center')
-    img.save(out_file)
+    font = ImageFont.truetype("C:\Windows\Fonts\Calibri.ttf", size)
+    draw.text((W, 150), content_print, fill="black", font=font, align='center')
+    img.save('print.png')
 
 
 # print label using brother_ql library
