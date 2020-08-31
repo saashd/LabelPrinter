@@ -35,12 +35,13 @@ def get_keys():
             create_label(text, 'template.png')
         else:
             create_label(text, 'template1.png')
-            status_code = print_label('print.png', quantity)
-            if status_code == 0:
-                return jsonify({'Message': 'success'}), 200
-            return jsonify({'Message': 'failed with status code: {}'.format(status_code)}), 500
     except Exception as e:
         return jsonify({'Message': str(e)}), 500
+
+    status_code = print_label('print.png', quantity)
+    if status_code == 0:
+        return jsonify({'Message': 'success'}), 200
+    return jsonify({'Message': 'failed with status code: {}'.format(status_code)}), 500
 
 
 def is_hebrew_char(c):
