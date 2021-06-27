@@ -120,10 +120,12 @@ def main():
     else:
         app.run(host='0.0.0.0', port=port)
     # this line should prevent exe file from closing.it allows server to keep running until the exe file is open
-    if input() == 'quit':
-        sys.exit(0)
-
-    return
+    while True:
+        c = input("Type the label you want to print. Type 'quit' to close the app.")
+        if input() == 'quit':
+            sys.exit(0)
+        create_label(c, 'template.png')  # with logo
+        print_label('print.png', 1)
 
 
 if __name__ == '__main__':
